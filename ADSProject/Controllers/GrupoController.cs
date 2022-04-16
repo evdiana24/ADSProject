@@ -6,16 +6,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text;
 
 namespace ADSProject.Controllers
 {
-    public class MateriaController : Controller
+    public class GrupoController : Controller
     {
-        private readonly IMateriaRepository materiaRepository;
+        private readonly IGrupoRepository grupoRepository;
 
-        public MateriaController(IMateriaRepository materiaRepository)
+        public GrupoController(IGrupoRepository grupoRepository)
         {
-            this.materiaRepository = materiaRepository;
+            this.grupoRepository = grupoRepository;
         }
 
         [HttpGet]
@@ -23,7 +24,7 @@ namespace ADSProject.Controllers
         {
             try
             {
-                var item = materiaRepository.obtenerMaterias();
+                var item = grupoRepository.obtenerGrupos();
 
                 return View(item);
             }
@@ -36,20 +37,20 @@ namespace ADSProject.Controllers
         }
 
         [HttpGet]
-        public IActionResult Form(int? idMateria, Operaciones operaciones)
+        public IActionResult Form(int? idGrupo, Operaciones operaciones)
         {
             try
             {
-                var materia = new MateriaViewModel();
+                var grupo = new GrupoViewModel();
 
-                if (idMateria.HasValue)
+                if (idGrupo.HasValue)
                 {
-                    materia = materiaRepository.obtenerMateriaPorID(idMateria.Value);
+                    grupo = grupoRepository.obtenerGrupoPorID(idGrupo.Value);
                 }
                 // Indica el tipo de operacion que es esta realizando
                 ViewData["Operaciones"] = operaciones;
 
-                return View(materia);
+                return View(grupo);
 
             }
             catch (Exception)
@@ -60,18 +61,18 @@ namespace ADSProject.Controllers
         }
 
         [HttpPost]
-        public IActionResult Form(MateriaViewModel materiaViewModel)
+        public IActionResult Form(GrupoViewModel grupoViewModel)
         {
             try
             {
-                if (materiaViewModel.idMateria == 0) // En caso de insertar
+                if (grupoViewModel.idGrupo == 0) // En caso de insertar
                 {
-                    materiaRepository.agregarMateria(materiaViewModel);
+                    grupoRepository.agregarGrupo(grupoViewModel);
                 }
                 else // En caso de actualizar
                 {
-                    materiaRepository.actualizarMateria
-                        (materiaViewModel.idMateria, materiaViewModel);
+                    grupoRepository.actualizarGrupo
+                        (grupoViewModel.idGrupo, grupoViewModel);
                 }
 
                 return RedirectToAction("Index");
@@ -84,11 +85,11 @@ namespace ADSProject.Controllers
         }
 
         [HttpPost]
-        public IActionResult Delete(int idMateria)
+        public IActionResult Delete(int idGrupo)
         {
             try
             {
-                materiaRepository.eliminarMateria(idMateria);
+                grupoRepository.eliminarGrupo(idGrupo);
             }
             catch (Exception)
             {
