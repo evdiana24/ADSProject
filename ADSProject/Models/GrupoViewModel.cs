@@ -6,6 +6,7 @@ namespace ADSProject.Models
     public class GrupoViewModel
     {
         [Display(Name = "ID")]
+        [Key]
         public int idGrupo { get; set; }
 
         [Display(Name = "ID Carrera")]
@@ -18,5 +19,7 @@ namespace ADSProject.Models
         public string ciclo { get; set; }
         [Display(Name = "Año")]
         public int year { get; set; }
+        public bool estado { get; set; }
+
     }
 }

@@ -6,6 +6,7 @@ namespace ADSProject.Models
     public class EstudianteViewModel
     {
         [Display(Name = "ID")]
+        [Key]
         public int idEstudiante { get; set; }
 
         [Required(ErrorMessage = Constants.REQUIRED_FIELD)]
@@ -19,5 +20,6 @@ namespace ADSProject.Models
         public string codigoEstudiante { get; set; }
         [Display(Name = "Correo")]
         public string correoEstudiante { get; set; }
+        public bool estado { get; set; }
     }
 }
