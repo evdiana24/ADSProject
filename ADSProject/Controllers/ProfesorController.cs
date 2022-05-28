@@ -1,7 +1,9 @@
 ﻿using ADSProject.Models;
 using ADSProject.Repository;
 using ADSProject.Utils;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +14,11 @@ namespace ADSProject.Controllers
     public class ProfesorController : Controller
     {
         private readonly IProfesorRepository profesorRepository;
-
-        public ProfesorController(IProfesorRepository profesorRepository)
+        private readonly ILogger<EstudianteController> logger;
+        public ProfesorController(IProfesorRepository profesorRepository, ILogger<EstudianteController> logger)
         {
             this.profesorRepository = profesorRepository;
+            this.logger = logger;
         }
 
         [HttpGet]
@@ -27,9 +30,9 @@ namespace ADSProject.Controllers
 
                 return View(item);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                logger.LogError("Error en el metodo index del controlador profesores", ex.Message);
                 throw;
             }
 
@@ -52,9 +55,9 @@ namespace ADSProject.Controllers
                 return View(profesor);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                logger.LogError("Error en el metodo form del controlador profesores", ex.Message);
                 throw;
             }
         }
@@ -64,21 +67,40 @@ namespace ADSProject.Controllers
         {
             try
             {
-                if (profesorViewModel.idProfesor == 0) // En caso de insertar
+                //Se validad que el modelo de datos sea correcto
+                if (ModelState.IsValid)
                 {
-                    profesorRepository.agregarProfesor(profesorViewModel);
+                    //Almacena el ID del registro insertado
+                    int id = 0;
+                    if (profesorViewModel.idProfesor == 0) // En caso de insertar
+                    {
+                        profesorRepository.agregarProfesor(profesorViewModel);
+                    }
+                    else // En caso de actualizar
+                    {
+                        profesorRepository.actualizarProfesor
+                            (profesorViewModel.idProfesor, profesorViewModel);
+                    }
+
+                    if (id > 0)
+                    {
+                        return StatusCode(StatusCodes.Status200OK);
+                    }
+                    else
+                    {
+                        return StatusCode(StatusCodes.Status202Accepted);
+                    }
                 }
-                else // En caso de actualizar
+                else
                 {
-                    profesorRepository.actualizarProfesor
-                        (profesorViewModel.idProfesor, profesorViewModel);
+                    return StatusCode(StatusCodes.Status400BadRequest);
                 }
 
-                return RedirectToAction("Index");
+                //return RedirectToAction("Index");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                logger.LogError("Error en el metodo form del controlador profesores", ex.Message);
                 throw;
             }
         }
@@ -90,9 +112,9 @@ namespace ADSProject.Controllers
             {
                 profesorRepository.eliminarProfesor(idProfesor);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                logger.LogError("Error en el metodo delete del controlador profesores", ex.Message);
                 throw;
             }
 

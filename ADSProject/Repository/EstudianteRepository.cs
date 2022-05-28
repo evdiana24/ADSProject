@@ -113,6 +113,21 @@ namespace ADSProject.Repository
             }
         }
 
+        public List<EstudianteViewModel> obtenerEstudiantes()
+        {
+            try
+            {
+                //Sin filtro
+                //return applicationDbContext.Estudiantes.ToList();
+
+                //Con filtro 
+                return applicationDbContext.Estudiantes.Where(x => x.estado == true).ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
         public List<EstudianteViewModel> obtenerEstudiantes(string[] includes)
         {
             try

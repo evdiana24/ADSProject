@@ -8,7 +8,7 @@ namespace ADSProject.Repository
 {
     public interface IEstudianteRepository
     {
-        //List<EstudianteViewModel> obtenerEstudiantes();
+        List<EstudianteViewModel> obtenerEstudiantes();
 
         List<EstudianteViewModel> obtenerEstudiantes(string[] includes);
 

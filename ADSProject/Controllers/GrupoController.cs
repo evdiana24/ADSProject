@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Text;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace ADSProject.Controllers
 {
@@ -16,13 +18,16 @@ namespace ADSProject.Controllers
         private readonly ICarreraRepository carreraRepository;
         private readonly IMateriaRepository materiaRepository;
         private readonly IProfesorRepository profesorRepository;
+        private readonly ILogger<EstudianteController> logger;
 
-        public GrupoController(IGrupoRepository grupoRepository, ICarreraRepository carreraRepository, IMateriaRepository materiaRepository, IProfesorRepository profesorRepository)
+        public GrupoController(IGrupoRepository grupoRepository, ICarreraRepository carreraRepository, 
+            IMateriaRepository materiaRepository, IProfesorRepository profesorRepository, ILogger<EstudianteController> logger)
         {
             this.grupoRepository = grupoRepository;
             this.carreraRepository = carreraRepository;
             this.materiaRepository = materiaRepository;
             this.profesorRepository = profesorRepository;
+            this.logger = logger;
         }
 
         [HttpGet]
@@ -37,9 +42,9 @@ namespace ADSProject.Controllers
 
                 return View(item);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                logger.LogError("Error en el metodo index del controlador grupos", ex.Message);
                 throw;
             }
 
@@ -71,9 +76,9 @@ namespace ADSProject.Controllers
                 return View(grupo);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                logger.LogError("Error en el metodo form del controlador grupos", ex.Message);
                 throw;
             }
         }
@@ -83,21 +88,40 @@ namespace ADSProject.Controllers
         {
             try
             {
-                if (grupoViewModel.idGrupo == 0) // En caso de insertar
+                //Se validad que el modelo de datos sea correcto
+                if (ModelState.IsValid)
                 {
-                    grupoRepository.agregarGrupo(grupoViewModel);
+                    //Almacena el ID del registro insertado
+                    int id = 0;
+                    if (grupoViewModel.idGrupo == 0) // En caso de insertar
+                    {
+                        grupoRepository.agregarGrupo(grupoViewModel);
+                    }
+                    else // En caso de actualizar
+                    {
+                        grupoRepository.actualizarGrupo
+                            (grupoViewModel.idGrupo, grupoViewModel);
+                    }
+
+                    if (id > 0)
+                    {
+                        return StatusCode(StatusCodes.Status200OK);
+                    }
+                    else
+                    {
+                        return StatusCode(StatusCodes.Status202Accepted);
+                    }
                 }
-                else // En caso de actualizar
+                else
                 {
-                    grupoRepository.actualizarGrupo
-                        (grupoViewModel.idGrupo, grupoViewModel);
+                    return StatusCode(StatusCodes.Status400BadRequest);
                 }
 
-                return RedirectToAction("Index");
+                //return RedirectToAction("Index");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                logger.LogError("Error en el metodo form del controlador grupos", ex.Message);
                 throw;
             }
         }
@@ -109,13 +133,23 @@ namespace ADSProject.Controllers
             {
                 grupoRepository.eliminarGrupo(idGrupo);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
+                logger.LogError("Error en el metodo delete del controlador grupos", ex.Message);
                 throw;
             }
 
             return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public IActionResult cargarMaterias(int? idCarrera)
+        {
+            var listadoCarreras = idCarrera == null ? new List<MateriaViewModel>():
+
+            materiaRepository.obtenerMaterias().Where(x => x.idCarrera == idCarrera);
+
+            return StatusCode(StatusCodes.Status200OK, listadoCarreras);
         }
     }
 }

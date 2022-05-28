@@ -1,0 +1,216 @@
+﻿@model ADSProject.Models.GrupoViewModel
+
+@{
+    ViewData["Title"] = "Form";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+
+<h4>Asignacion de grupo</h4>
+<hr />
+
+<form asp-action="Form">
+    <input type="hidden" id="IdGrupo" value="@Model.idGrupo" name="Id" />
+    <input type="hidden" id="_redirectURL" value='@Url.Action("Index", "Grupo")' />
+    <div class="form-horizontal">
+        <div class="row">
+            <div class="col-md-2">
+                <label class="font-weight-bold">Anio:</label>
+                <span>@Model.year</span>
+            </div>
+
+            <div class="col-md-2">
+                <label class="font-weight-bold">Ciclo:</label>
+                <span>@Model.ciclo</span>
+            </div>
+
+            <div class="col-md-2">
+                <label class="font-weight-bold">Profesor:</label>
+                <span>@Model.Profesores.nombreProfesor @Model.Profesores.apellidoProfesor</span>
+            </div>
+
+            <div class="col-md-4">
+                <label class="font-weight-bold">Materia:</label>
+                <span>@Model.Materias.nombreMateria</span>
+            </div>
+        </div>
+
+        <br />
+        <div class="row">
+            <div class="col-md-4">
+                <label class="font-weight-bold">Carrera:</label>
+                <span>@Model.Carreras.nombreCarrera</span>
+            </div>
+        </div>
+
+        <br />
+
+        <div class="row">
+            <div class="col-md-1">
+                <label for="IdEstudiante" class="control-label font-weight-bold">Estudiante:</label>
+            </div>
+            <div class="col-md-3">
+                @Html.DropDownList("IdEstudiante", new SelectList(ViewBag.estudiantes, "idEstudiante", "nombresEstudiante"), "[Seleccione una opción]", htmlAttributes: new { @class = "form-control" })
+
+                <span class="text-danger" style="display:none;" id="validationEstudiante">Este campo es requerido</span>
+
+                <span class="text-danger" style="display:none;" id="validationIdEstudiante">El estudiante ya fue agregado</span>
+
+            </div>
+            <div class="col-md-2">
+                <button id="btnAgregar" type="button" value="Agregar" class="btn btn-success" onclick="agregarFila()">Agregar</button>
+            </div>
+        </div>
+        <hr />
+
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre completo del estudiante</th>
+                    <th>Accion</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int index = 0;
+
+                    foreach (var item in Model.AsignacionGrupos)
+                    {
+                        <tr>
+                            <td>
+                                <span>@(item.Estudiantes.nombresEstudiante)</span>
+                                <input type="hidden" name="AsignacionGrupos[@index].idEstudiante" value="@item.Estudiantes.idEstudiante"
+                                       class="IdEstudiante" />
+                                <input type="hidden" name="AsignacionGrupos[@index].idGrupo" value="@Model.idGrupo" class="IdGrupo" />
+                            </td>
+
+                            <td>
+                                <button class="btn btn-xs btn-danger" onclick="quitarFila(this)">Eliminar</button>
+                            </td>
+                        </tr>
+
+                        index++;
+                    }
+                }
+
+            </tbody>
+        </table>
+        <div class="row">
+            <div class="col-md-2">
+                <input id="btnGuardar" type="submit" value="Guardar" class="btn btn-primary" />
+            </div>
+        </div>
+
+    </div>
+</form>
+
+<div>
+    <a asp-action="Index" asp-controller="Grupo">Regresar</a>
+</div>
+
+
+
+<style>
+    .table td:last-child, th:last-child {
+        text-align: center;
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Se inicia con el boton agregar deshabilitado
+        if ($("#IdEstudiante option:selected").text() === "[Seleccione una opción]") {
+            $('#btnAgregar').prop('disabled', true);
+        }
+        // Funcion anonima que deshabilita el primer elemento del dropdown
+        $(function () {
+            $("select[id='IdEstudiante'] option:first-child").attr("disabled", "disabled");
+        })
+        // Se deshabilita el boton para guardar (ya que se requiere que se seleccione un elemento)
+        if ($("select[id='IdEstudiante'] option:first-child")) {
+            $('#btnGuardar').prop('disabled', true);
+        }
+        function customValidate() {
+            // 1. Se valida si un elemento fue seleccionado en el dropdown
+            if ($("#IdEstudiante option:selected").text() === "[Seleccione una opción]") {
+
+                $('#validationEstudiante').css('display', 'inline');
+                $('#btnAgregar').prop('disabled', true);
+                $('#btnGuardar').prop('disabled', true);
+                return false;
+            } else {
+                $('#validationEstudiante').css('display', 'none');
+                $('#btnAgregar').removeAttr('disabled');
+                $('#btnGuardar').removeAttr('disabled');
+            }
+            var currentID = $("#IdEstudiante").val();
+            var encontrado = false;
+            // 2. Se valida si un elemento ya fue insertado en la tabla (previo a guardar)
+            $(".IdEstudiante").each(function (e) {
+                if ($(this).val() == currentID) {
+                    $('#validationIdEstudiante').css('display', 'inline');
+                    encontrado = true;
+                }
+            });
+            // Si el elemento no existe (se procede a habilitar los botones)
+            if (!encontrado) {
+                $('#validationIdEstudiante').css('display', 'none');
+                $('#btnAgregar').removeAttr('disabled');
+                $('#btnGuardar').removeAttr('disabled');
+                return true;
+            } else {
+                $('#btnAgregar').prop('disabled', true);
+                $('#btnGuardar').prop('disabled', true);
+                return false;
+            }
+        }
+        // Cuando se selecciona un elemento del dropdown
+        $("#IdEstudiante").change(function () {
+            customValidate(); // llamado a la funcion personalizada.
+        });
+        // Cuando se selecciona el boton eliminar de la tabla
+        function quitarFila(elemento) {
+            $(elemento).parent().closest("tr").remove();
+            recalcularIndices();
+        }
+
+        // Agregar un registro a la tabla
+        function agregarFila() {
+            var fila = $("<tr><td><span>" + $("#IdEstudiante option:selected").text() + "</span><input type='hidden' value='" + $("#IdEstudiante").val() + "' class='IdEstudiante' /><input type='hidden' value='" + $("#IdGrupo").val() + "' class='IdGrupo' /></td><td><button class='btn btn-xs btn-danger' onclick='quitarFila(this)'>Eliminar</button></td></tr>");
+            $("tbody").append(fila);
+            recalcularIndices();
+        }
+        // Cuando se elimina un registro de la tabla es necesario recalcular los indices
+        function recalcularIndices() {
+            var i = 0;
+            $(".IdEstudiante").each(function () {
+                $(this).attr("name", "AsignacionGrupos[" + i + "].IdEstudiante");
+                i++;
+            });
+            i = 0;
+            $(".IdGrupo").each(function () {
+                $(this).attr("name", "AsignacionGrupos[" + i + "].idGrupo");
+                i++;
+            });
+            // Se regresa el valor del select al primer indice es decir ([Seleccione una opcion])
+            $("#IdEstudiante").prop('selectedIndex', 0);
+            // Se deshabilita el boton para agregar.
+            $('#btnAgregar').prop('disabled', true);
+
+            // Se deshabilita el boton para guardar un elemento
+            $('#btnGuardar').prop('disabled', true);
+        }
+        $(document).ready(function () {
+            //Agregamos a los formularios la clase form-ajax
+            //La cual activa el formulario para trabajar con Ajax
+            $("form").addClass("form-ajax");
+            //Activamos Ajax
+            initAjaxForm();
+        });
+    </script>
+}

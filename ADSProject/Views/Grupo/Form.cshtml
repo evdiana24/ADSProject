@@ -1,20 +1,18 @@
 ﻿@model ADSProject.Models.GrupoViewModel
 
-@{ ViewData["Title"] = "Form";
+@{
+    ViewData["Title"] = "Form";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     List<CarreraViewModel> lstCarreras = new List<CarreraViewModel>();
-
-    lstCarreras = ViewBag.Carreras;
-
     List<MateriaViewModel> lstMaterias = new List<MateriaViewModel>();
-
-    lstMaterias = ViewBag.Materias;
-
     List<ProfesorViewModel> lstProfesores = new List<ProfesorViewModel>();
 
+    lstCarreras = ViewBag.Carreras;
+    lstMaterias = ViewBag.Materias;
     lstProfesores = ViewBag.Profesores;
- }
+
+}
 
 <h1>Form</h1>
 
@@ -22,59 +20,49 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <input type="hidden" id="operacion" value="@ViewData["Operaciones"]" />
-        <input type="hidden" id="_redirectURL" value="@Url.Action("Index", "Grupo")" />
         <form asp-action="Form">
+            <input type="hidden" id="operacion" value="@ViewData["Operaciones"]" />
+            <input type="hidden" id="_redirectURL" value="@Url.Action("Index", "Grupo")" />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <input asp-for="idGrupo" class="form-control" type="hidden" />
+                <input asp-for="idGrupo" type="hidden" class="form-control" />
             </div>
-            @*<div class="form-group">
-        <label asp-for="idCarrera" class="control-label"></label>
-        <input asp-for="idCarrera" class="form-control" />
-        <span asp-validation-for="idCarrera" class="text-danger"></span>
-        </div>*@
             <div class="form-group">
                 <label asp-for="idCarrera" class="control-label"></label>
-                <select asp-for="idCarrera" class="form-control">
-                    <option selected disabled>Seleccione una opción</option>
+
+                <select id="carreras" asp-for="idCarrera" class="form-control">
+                    <option selected disabled>Seleccione una carrera</option>
                     @foreach (var item in lstCarreras)
                     {
-        <option value="@item.idCarrera">@item.nombreCarrera</option>
-}
-                    <span asp-validation-for="idCarrera" class="text-danger"></span>
+                        <option value="@item.idCarrera">@item.nombreCarrera</option>
+                    }
                 </select>
+
+                <span asp-validation-for="idCarrera" class="text-danger"></span>
             </div>
-            @*<div class="form-group">
-        <label asp-for="idMateria" class="control-label"></label>
-        <input asp-for="idMateria" class="form-control" />
-        <span asp-validation-for="idMateria" class="text-danger"></span>
-        </div>*@
             <div class="form-group">
                 <label asp-for="idMateria" class="control-label"></label>
-                <select asp-for="idMateria" class="form-control">
-                    <option selected disabled>Seleccione una opción</option>
+                <select id="materias" asp-for="idMateria" class="form-control">
+                    <option selected disabled>Seleccione una materia</option>
                     @foreach (var item in lstMaterias)
                     {
-        <option value="@item.idMateria">@item.nombreMateria</option>
-}
-                    <span asp-validation-for="idMateria" class="text-danger"></span>
+                        <option value="@item.idMateria">@item.nombreMateria</option>
+                    }
                 </select>
+                <span asp-validation-for="idMateria" class="text-danger"></span>
             </div>
-            @*<div class="form-group">
-            <label asp-for="idProfesor" class="control-label"></label>
-            <input asp-for="idProfesor" class="form-control" />
-            <span asp-validation-for="idProfesor" class="text-danger"></span>
-        </div>*@
             <div class="form-group">
                 <label asp-for="idProfesor" class="control-label"></label>
+
                 <select asp-for="idProfesor" class="form-control">
-                    <option selected disabled>Seleccione una opción</option>
+                    <option selected disabled>Seleccione un profesor</option>
                     @foreach (var item in lstProfesores)
                     {
-        <option value="@item.idProfesor">@item.nombreProfesor</option>}
-                    <span asp-validation-for="idProfesor" class="text-danger"></span>
+                        <option value="@item.idProfesor">@item.nombreProfesor  @item.apellidoProfesor</option>
+                    }
                 </select>
+
+                <span asp-validation-for="idProfesor" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ciclo" class="control-label"></label>
@@ -86,9 +74,9 @@
                 <input asp-for="year" class="form-control" />
                 <span asp-validation-for="year" class="text-danger"></span>
             </div>
-            <input type="checkbox" asp-for="estado" value="true" type="hidden" />
+            <input type="checkbox" value="true" asp-for="estado" type="hidden" />
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+                <input type="submit" value="Agregar" class="btn btn-primary" />
             </div>
         </form>
     </div>
@@ -99,18 +87,65 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 
-    <script>$(document).ready(function () {
-            // Cuando la operacion sobre el formulario es de lectura.
+
+
+    <script>
+    $(document).ready(function() {
+      // Cuando la operación es Ver, entonces se deben deshabilitar los controles del formulario.
             if ($("#operacion").val() == "leer") {
-
-                $("form").find("input,select").attr("disabled", true);
-
+                $("form").find("input, select").attr("disabled", true);
             }
+         //Agregamos a los formularios la clase form-ajax
+         //La cual activa el formulario para trabajar con Ajax
+          $("form").addClass("form-ajax");
+            //Activamos Ajax
+            initAjaxForm();
+        $("#carreras").change(cargarMaterias);
 
-        });
-        $("form").addClass("form-ajax");
-        // Activar AJAX
-        initAjaxForm();</script>
+        $("#carreras").trigger("change");
+    });
+    // Funcion que hace el llamado para aplicar el filtro de las materias
+    function cargarMaterias() {
+            selectLoadingData('@Url.Action("cargarMaterias", "Grupo")?idCarrera=' + $("#carreras").val(), $("#materias"));
+        }
+    /// Permite cargar todas las materias asociadas a una carrera
+        function selectLoadingData(URL, select){
+             $.ajax({
+                url: URL,
+                headers: {
+                    'Accept': "application/json; charset=utf-8"
+                },
+                beforeSend: function () {
+                    console.log("Iniciando petición...");
+                },
+                success: function (data) {
+                    var valorSeleccionado = $("#materias").val();
+                    select.html("<option value=''>[Seleccione una opción]</option>");
+                    $.each(data, function (index, item) {
+                        console.log(item);
+                        if (valorSeleccionado == item.idMateria) {
+                            select.append(`<option selected value=${item.idMateria}>${item.nombreMateria}</option>`);
+                        } else {
+                            select.append(`<option value=${item.idMateria}>${item.nombreMateria}</option>`);
+                        }
+                    });
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    console.log("Ocurrió un error en la petición.");
+                },
+                complete: function () {
+                    console.log("Petición completada.");
+                },
+                type: "GET",
+                contentType: false,
+                processData: false,
+                async: true,
+                cache: false
+             });
+        }
+    </script>
 }

@@ -19,7 +19,6 @@ namespace ADSProject.Data
         public DbSet<CarreraViewModel> Carreras { get; set; }
         public DbSet<ProfesorViewModel> Profesores { get; set; }
         public DbSet<GrupoViewModel> Grupos { get; set; }
-
-
+        public DbSet<AsignacionGrupoViewModel> AsignacionGrupos { get; set; }
     }
 }

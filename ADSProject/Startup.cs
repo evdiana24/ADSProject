@@ -38,6 +38,8 @@ namespace ADSProject
 
             services.AddTransient<IGrupoRepository, GrupoRepository>();
 
+            services.AddTransient<IAsignacionGrupoRepository, AsignacionGrupoRepository>();
+
             //Configuracion de DB
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
         }

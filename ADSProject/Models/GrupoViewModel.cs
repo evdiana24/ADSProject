@@ -1,4 +1,5 @@
 ﻿using ADSProject.Utils;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -42,5 +43,7 @@ namespace ADSProject.Models
         [ForeignKey("idProfesor")]
 
         public ProfesorViewModel Profesores { get; set; }
+
+        public ICollection<AsignacionGrupoViewModel> AsignacionGrupos { get; set; }
     }
 }
