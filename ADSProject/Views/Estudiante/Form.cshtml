@@ -3,6 +3,10 @@
 @{
     ViewData["Title"] = "Form";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    List<CarreraViewModel> lstCarreras = new List<CarreraViewModel>();
+
+    lstCarreras = ViewBag.Carreras;
 }
 
 <h1>Form</h1>
@@ -38,7 +42,18 @@
                 <input asp-for="correoEstudiante" class="form-control" />
                 <span asp-validation-for="correoEstudiante" class="text-danger"></span>
             </div>
-            <input type="checkbox" asp-for="estado" value="true" type= "hidden" />
+            <div class="form-group">
+                <label asp-for="idCarrera" class="control-label"></label>
+                <select asp-for="idCarrera" class="form-control">
+                    <option selected disabled>Seleccione una opción</option>
+                @foreach (var item in lstCarreras)
+            {
+                <option value= "@item.idCarrera">@item.nombreCarrera</option>
+            }
+                <span asp-validation-for="idCarrera" class="text-danger"></span>
+                </select>
+            </div>
+            <input type="checkbox" asp-for="estado" value="true" type="hidden" />
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>
@@ -53,7 +68,8 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
-    <script>$(document).ready(function () {
+    <script>
+    $(document).ready(function () {
             // Cuando la operacion sobre el formulario es de lectura.
             if ($("#operacion").val() == "leer") {
 

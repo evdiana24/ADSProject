@@ -12,10 +12,12 @@ namespace ADSProject.Controllers
     public class MateriaController : Controller
     {
         private readonly IMateriaRepository materiaRepository;
+        private readonly ICarreraRepository carreraRepository;
 
-        public MateriaController(IMateriaRepository materiaRepository)
+        public MateriaController(IMateriaRepository materiaRepository, ICarreraRepository carreraRepository)
         {
             this.materiaRepository = materiaRepository;
+            this.carreraRepository = carreraRepository;
         }
 
         [HttpGet]
@@ -23,7 +25,7 @@ namespace ADSProject.Controllers
         {
             try
             {
-                var item = materiaRepository.obtenerMaterias();
+                var item = materiaRepository.obtenerMaterias(new string[] { "Carreras" });
 
                 return View(item);
             }
@@ -48,6 +50,9 @@ namespace ADSProject.Controllers
                 }
                 // Indica el tipo de operacion que es esta realizando
                 ViewData["Operaciones"] = operaciones;
+
+                //Obteniendo todas las carreras disponibles
+                ViewBag.Carreras = carreraRepository.obtenerCarreras();
 
                 return View(materia);
 

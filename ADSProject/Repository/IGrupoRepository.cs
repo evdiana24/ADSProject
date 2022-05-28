@@ -9,7 +9,9 @@ namespace ADSProject.Repository
 {
     public interface IGrupoRepository
     {
-        List<GrupoViewModel> obtenerGrupos();
+        //List<GrupoViewModel> obtenerGrupos();
+
+        List<GrupoViewModel> obtenerGrupos(string[] includes);
 
         int agregarGrupo(GrupoViewModel grupoViewModel);
 

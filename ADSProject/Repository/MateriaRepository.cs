@@ -1,5 +1,6 @@
 ﻿using ADSProject.Data;
 using ADSProject.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -124,6 +125,33 @@ namespace ADSProject.Repository
 
                 //Con filtro 
                 return applicationDbContext.Materias.Where(x => x.estado == true).ToList();
+
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public List<MateriaViewModel> obtenerMaterias(string[] includes)
+        {
+            try
+            {
+                //Sin filtro
+                //return applicationDbContext.Materias.ToList();
+
+                //Con filtro 
+                //return applicationDbContext.Materias.Where(x => x.estado == true).ToList();
+
+                var lst = applicationDbContext.Materias.Where(x => x.estado == true).AsQueryable();
+
+                foreach (var item in includes)
+                {
+                    lst = lst.Include(item);
+                }
+
+                return lst.ToList();
             }
             catch (Exception)
             {
